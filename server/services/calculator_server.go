@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 type calculatorServer struct {
@@ -17,6 +20,9 @@ func NewCalculatorServer() CalculatorServer {
 func (calculatorServer) mustEmbedUnimplementedCalculatorServer() {}
 
 func (calculatorServer) Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error) {
+	if req.Name == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "name is required")
+	}
 	result := fmt.Sprintf("Hello %s", req.Name)
 	res := HelloResponse{
 		Result: result,
