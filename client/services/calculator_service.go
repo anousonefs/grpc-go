@@ -10,6 +10,7 @@ import (
 type CalculatorService interface {
 	Hello(name string) error
 	Fibonacci(n uint32) error
+	Average(numbers ...float64) error
 }
 
 type calculatorService struct {
@@ -56,5 +57,29 @@ func (base calculatorService) Fibonacci(n uint32) error {
 		}
 		fmt.Printf("Response : %v\n", res.Result)
 	}
+	return nil
+}
+
+func (base calculatorService) Average(numbers ...float64) error {
+	stream, err := base.calculatorClient.Average(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("service: average")
+	for _, number := range numbers {
+		req := AverageRequest{
+			Number: number,
+		}
+		fmt.Printf("request: %v\n", req.Number)
+		stream.Send(&req)
+		time.Sleep(time.Second)
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("response: %v\n", res.Result)
+
 	return nil
 }
