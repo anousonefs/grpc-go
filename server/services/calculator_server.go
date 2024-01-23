@@ -66,3 +66,24 @@ func (calculatorServer) Average(stream Calculator_AverageServer) error {
 	}
 	return stream.SendAndClose(&res)
 }
+
+func (calculatorServer) Sum(stream Calculator_SumServer) error {
+	sum := int32(0)
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		sum += req.Number
+		res := SumResponse{
+			Result: sum,
+		}
+		if err := stream.Send(&res); err != nil {
+			return err
+		}
+	}
+	return nil
+}
